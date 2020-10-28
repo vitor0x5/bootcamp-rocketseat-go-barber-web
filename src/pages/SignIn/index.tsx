@@ -13,6 +13,7 @@ import logo from '../../assets/logo.svg';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
+import { useToast } from '../../hooks/Toast';
 
 interface SingInFormData {
   email: string;
@@ -22,7 +23,9 @@ interface SingInFormData {
 const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
 
-  const { user, signIn } = useAuth();
+  const { signIn } = useAuth();
+
+  const { addToast } = useToast();
 
   const handleSubmit = useCallback(async (data: SingInFormData) => {
     try {
@@ -40,7 +43,7 @@ const SignIn: React.FC = () => {
         abortEarly: false, // returns all the errors
       });
 
-      signIn({
+      await signIn({
         email: data.email,
         password: data.password,
       });
@@ -50,9 +53,13 @@ const SignIn: React.FC = () => {
         formRef.current?.setErrors(errors);
       }
 
-      // TODO dispatch toast message
+      addToast({
+        type: 'error',
+        title: 'Erro na autenticação',
+        description: 'Ocorreu um erro ao fazer login, cheque as credenciais',
+      });
     }
-  }, [signIn]);
+  }, [signIn, addToast]);
 
   return (
     <Container>
